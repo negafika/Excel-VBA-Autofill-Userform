@@ -1,1 +1,1 @@
-# Excel-VBA-Autofill-Userform
+This repo is prepared to intoduce an excel custom userform application which helps while working with generation of repetitive sequences which are common in organized datas like in Structured Query Language (SQL) databases. The userform asks you to enter source range which is used as a reference to fill the destination range with a given span value. It have optional fields like prefix and suffix including a checkbox to specify if the data will be populated with autofillsereis or autofillcopy.
