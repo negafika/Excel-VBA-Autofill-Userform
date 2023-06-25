@@ -1,0 +1,118 @@
+Private Sub UserForm_Initialize()
+    ' Set the initial values for the controls
+    UserForm.Caption = "Autofill Series"
+    sourcelbl.Caption = "Source Range:"
+    destlbl.Caption = "Destination Range:"
+    CheckBox1.Caption = "Copy"
+    spanlbl.Caption = "Span:"
+    preflbl.Caption = "Prefix:"
+    suflbl.Caption = ":Sufix"
+    OKButton.Caption = "OK"
+    CancelButton.Caption = "Cancel"
+End Sub
+
+Private Sub OKButton_Click()
+    ' Validate and process the user input
+    Dim range1 As Range
+    Dim range2 As Range
+    Dim boolValue As Boolean
+    Dim numericValue As Integer
+    Dim prefValue As String
+    Dim sufValue As String
+    
+    ' Validate Range 1
+    On Error Resume Next
+    Set range1 = Range(RefEdit1.Value)
+    On Error GoTo 0
+    If range1 Is Nothing Then
+        MsgBox "Invalid Range 1", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Validate Range 2
+    On Error Resume Next
+    Set range2 = Range(RefEdit2.Value)
+    On Error GoTo 0
+    If range2 Is Nothing Then
+        MsgBox "Invalid Range 2", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Get the Boolean value
+    boolValue = CheckBox1.Value
+    
+    ' Get the Numeric Input value
+    On Error Resume Next
+    numericValue = CInt(TextBox1.Value)
+    On Error GoTo 0
+    If Err.Number <> 0 Then
+        MsgBox "Invalid Numeric Input", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Get the Prefix Input value
+    On Error Resume Next
+    prefValue = CStr(TextBox2.Value)
+    On Error GoTo 0
+    If Err.Number <> 0 Then
+        MsgBox "Invalid String Input", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Get the Suffix Input value
+    On Error Resume Next
+    sufValue = CStr(TextBox3.Value)
+    On Error GoTo 0
+    If Err.Number <> 0 Then
+        MsgBox "Invalid String Input", vbExclamation
+        Exit Sub
+    End If
+    ' Process the variables as needed
+    ' ...
+    Call fill(range1, range2, numericValue, boolValue, prefValue, sufValue)
+    ' Close the UserForm
+    Unload Me
+End Sub
+
+Private Sub CancelButton_Click()
+    ' Close the UserForm without processing
+    Unload Me
+End Sub
+
+Private Sub fill(srcerng As Range, desrng As Range, nRows As Integer, cop As Boolean, pre As String, suf As String)
+Dim count1 As Integer
+Dim count2 As Integer
+Dim rep_row As Integer
+Dim source_row As Range
+Dim dest_row As Range
+Dim on_rng As Range
+
+desrng.Cells(1, 1).Activate
+rep_row = srcerng.Rows.Count
+
+For j = 1 To rep_row
+    Set source_row = srcerng.Rows(j)
+    Set dest_row = Range(ActiveCell, ActiveCell.Offset(0, srcerng.Columns.Count - 1))
+    
+    source_row.copy dest_row
+    
+    If Not (pre = "" And suf = "") Then
+        For Each cell In dest_row
+            temp = cell.Value
+            cell.Value = pre & temp & suf
+        Next
+    End If
+    
+    count2 = nRows * j + desrng.Row - 1
+    count1 = count2 - nRows + 1
+    Set on_rng = Range(Cells(count1, desrng.Column), Cells(count2, desrng.Column + srcerng.Columns.Count - 1))
+    
+    If cop Then
+        dest_row.AutoFill Destination:=on_rng, Type:=xlFillCopy
+    Else
+        dest_row.AutoFill Destination:=on_rng, Type:=xlFillSeries
+    End If
+    
+    ActiveCell.Offset(nRows, 0).Activate
+Next j
+End Sub
